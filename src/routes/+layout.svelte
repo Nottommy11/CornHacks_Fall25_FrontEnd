@@ -10,7 +10,3 @@
 </svelte:head>
 
 {@render children()}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
