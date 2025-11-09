@@ -1,36 +1,92 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="hamlindigo">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TerraFlo Analytics | Affordable Smart Farming</title>
+<script>
+  import { onMount } from 'svelte';
+  import Chart from 'chart.js/auto';
 
-  <!-- Skeleton + Theme -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@skeletonlabs/skeleton/themes/hamlindigo.css">
+  // --- Fake Live Data Example ---
+  let liveData = [
+    { waterTemp: 21, humidity: 68, tds: 850 },
+    { waterTemp: 23, humidity: 55, tds: 920 },
+    { waterTemp: 22, humidity: 60, tds: 880 }
+  ];
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  let recommendations = [];
 
-  <title>TerraFlo Analytics Logo</title>
-  <style>
-    /* Ensure the image is positioned at the top-left */
-    .top-left-image {
-      position: absolute;
-      top: 0;
-      left: 5;
-      width: 80px;
-      height: auto;
+  // --- Recommendation Logic ---
+  function generateRecommendations() {
+    const latest = liveData[liveData.length - 1];
+    recommendations = [];
+
+    if (latest.waterTemp > 22) {
+      recommendations.push("⚠️ Water temperature is high. Consider cooling nutrient solution.");
+    } else if (latest.waterTemp < 20) {
+      recommendations.push("🌡️ Water temperature is low. Consider increasing ambient warmth.");
     }
 
-    canvas {
-        width: 100% !important;
-    height: 100% !important;
+    if (latest.humidity < 60) {
+      recommendations.push("💧 Humidity is low. Increase misting or reduce fan speed.");
     }
-  </style>
-</head>
 
-<body class="bg-surface-100 text-surface-900 min-h-screen flex flex-col font-sans">
+    if (latest.tds > 900) {
+      recommendations.push("🧪 Nutrient concentration slightly high. Dilute with fresh water.");
+    }
 
+    if (recommendations.length === 0) {
+      recommendations.push("✅ All systems optimal — great work!");
+    }
+  }
+
+  // --- Chatbot Logic ---
+  let chatOpen = false;
+  let chatInput = "";
+  let messages = [
+    { role: "bot", text: "Hi! I'm TerraBot 🌿. Ask me about your hydroponic setup!" }
+  ];
+
+  async function sendMessage() {
+    if (!chatInput.trim()) return;
+
+    // Add user message
+    messages = [...messages, { role: "user", text: chatInput }];
+    const userMessage = chatInput;
+    chatInput = "";
+
+    // Simulated AI delay and reply
+    await new Promise((r) => setTimeout(r, 800));
+    let reply = "";
+
+    if (userMessage.toLowerCase().includes("water")) {
+      reply = "Water levels look good — keep monitoring temperature between 20–22°C.";
+    } else if (userMessage.toLowerCase().includes("humidity")) {
+      reply = "Humidity around 60% is ideal for most leafy greens 🌱.";
+    } else {
+      reply = "I'm still learning! Try asking about water, humidity, or nutrients.";
+    }
+
+    messages = [...messages, { role: "bot", text: reply }];
+  }
+
+  // --- Charts (you can replace with your real data later) ---
+  onMount(() => {
+    generateRecommendations();
+
+    const ctx = document.getElementById('chartWaterTemp');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [
+          {
+            label: 'Water Temp (°C)',
+            data: [21, 22, 23, 22, 21],
+          },
+        ],
+      },
+    });
+  });
+</script>
+
+<!-- Page Layout -->
+<div class="bg-surface-100 text-surface-900 min-h-screen flex flex-col font-sans">
   <!-- Header -->
   <header class="bg-primary-500 text-primary-contrast-500 p-6 shadow-md">
     <div class="container mx-auto flex justify-between items-center">
@@ -44,83 +100,44 @@
     </div>
   </header>
 
-  <img src="tfaLogo.png" alt="TerraFlo Analytics Logo" class="top-left-image">
-
-  <!-- Hero / About -->
   <section id="about" class="bg-surface-50 py-20 text-center">
     <div class="container mx-auto">
-      <h2 class="text-4xl font-bold mb-4 text-primary-700">Affordable Intelligence for Sustainable Growth</h2>
+      <h2 class="text-4xl font-bold mb-4 text-primary-700">
+        Affordable Intelligence for Sustainable Growth
+      </h2>
       <p class="max-w-2xl mx-auto text-lg leading-relaxed">
-        TerraFlo Analytics helps hydroponic and traditional farmers gain real-time insights into their operations —
+        TerraFlo Analytics helps hydroponic and traditional farmers gain real-time insights into their operations — 
         from nutrient balance to light optimization — without the heavy costs of big data systems.
-        Our mission: <strong>make precision agriculture accessible to everyone.</strong>
       </p>
     </div>
   </section>
 
   <!-- Live Dashboard -->
   <main id="live" class="container mx-auto py-12 flex-1">
-  <h2 class="text-3xl font-semibold text-center mb-10">Live Monitoring Dashboard</h2>
- 
-  <div class="grid md:grid-cols-2 gap-8">
-     
-    <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
-      <h3 class="text-xl font-semibold mb-4 text-primary-700">Water Temp(°C)</h3>
-      <canvas id="chartWaterTemp"></canvas>
+    <h2 class="text-3xl font-semibold text-center mb-10">Live Monitoring Dashboard</h2>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
+        <h3 class="text-xl font-semibold mb-4 text-primary-700">Water Temp (°C)</h3>
+        <canvas id="chartWaterTemp"></canvas>
+      </div>
+
+      <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
+        <h3 class="text-xl font-semibold mb-4 text-primary-700">Air Pressure (atm)</h3>
+        <canvas id="chartAirPressure"></canvas>
+      </div>
     </div>
-
-
-    <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
-      <h3 class="text-xl font-semibold mb-4 text-primary-700">Air Pressure (atmospheres)</h3>
-      <canvas id="chartAirPressure"></canvas>
-    </div>
-
-
-    <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
-      <h3 class="text-xl font-semibold mb-4 text-primary-700">Humidity (g/m³)</h3>
-      <canvas id="chartHumidity"></canvas>
-    </div>
-
-
-    <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
-      <h3 class="text-xl font-semibold mb-4 text-primary-700">Total Dissolved Particles (Parts Per Million)</h3>
-      <canvas id="chartTotalDissolvedParticles"></canvas>
-    </div>
-  </div>
   </main>
 
+  <!-- Smart Recommendations -->
   <section id="recommendations" class="bg-surface-100 py-16">
     <div class="container mx-auto text-center">
-        <h2 class="text-3xl font-semibold text-primary-700 mb-6">Smart Recommendations</h2>
-        <p class="max-w-2xl mx-auto text-lg mb-8">
-        Based on current live readings, TerraFlo suggests the following actions to optimize growth:
-        </p>
-        
-        <div id="recommendation-box" class="bg-surface-200 text-lg p-6 rounded-xl shadow-lg max-w-3xl mx-auto">
-        Loading recommendations...
-        </div>
-    </div>
-  </section>
-
-  <!-- Historical Data -->
-  <section id="historical" class="bg-surface-50 py-12">
-    <div class="container mx-auto text-center mb-10">
-        <h2 class="text-3xl font-semibold text-primary-700">Historical Growth & Comparisons</h2>
-        <p class="max-w-2xl mx-auto text-lg">
-            Review trends over time — compare performance month-to-month and visualize how small optimizations
-            improve yield, stability, and cost savings.
-        </p>
-    </div>
-
-    <div class="container mx-auto grid md:grid-cols-2 gap-8">
-        <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
-            <h3 class="text-xl font-semibold mb-4 text-primary-700">Nutrient Levels (6-Month Average)</h3>
-            <canvas id="chartHistoricalEC"></canvas>
-        </div>
-        <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
-            <h3 class="text-xl font-semibold mb-4 text-primary-700">Yield Growth (%) Over Time</h3>
-            <canvas id="chartYield"></canvas>
-        </div>
+      <h2 class="text-3xl font-semibold text-primary-700 mb-6">Smart Recommendations</h2>
+      <div class="bg-surface-200 text-lg p-6 rounded-xl shadow-lg max-w-3xl mx-auto space-y-2">
+        {#each recommendations as rec}
+          <p>{rec}</p>
+        {/each}
+      </div>
     </div>
   </section>
 
@@ -129,223 +146,54 @@
     © 2025 TerraFlo Analytics — Empowering Smart Farming Affordably
   </footer>
 
-  <!-- Placeholder for AI Chatbot -->
-  <div id="chatbot" class="fixed bottom-6 right-6">
-    <button class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-4 rounded-full shadow-lg">
-      💬 Chat with TerraBot
+  <!-- Floating Chatbot -->
+  <div class="fixed bottom-6 right-6">
+    <button
+      class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-4 rounded-full shadow-lg"
+      on:click={() => (chatOpen = !chatOpen)}>
+      💬 {chatOpen ? 'Close TerraBot' : 'Chat with TerraBot'}
     </button>
+
+    {#if chatOpen}
+      <div class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl w-80 max-h-[400px] flex flex-col">
+        <div class="p-3 bg-primary-500 text-white rounded-t-xl font-semibold">
+          TerraBot 🌿
+        </div>
+        <div class="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+          {#each messages as m}
+            <div class={m.role === 'user' ? 'text-right' : 'text-left'}>
+              <span
+                class={`inline-block px-3 py-2 rounded-lg ${
+                  m.role === 'user' ? 'bg-primary-100' : 'bg-secondary-100'
+                }`}>
+                {m.text}
+              </span>
+            </div>
+          {/each}
+        </div>
+        <div class="p-2 border-t flex space-x-2">
+          <input
+            class="flex-1 border rounded-lg px-3 py-2 text-sm"
+            bind:value={chatInput}
+            placeholder="Ask me anything..."
+            on:keydown={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <button
+            class="bg-primary-500 hover:bg-primary-600 text-white px-3 rounded-lg"
+            on:click={sendMessage}>
+            Send
+          </button>
+        </div>
+      </div>
+    {/if}
   </div>
+</div>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-o6InL+o0sygQvFzPrppvjhZRTV7rqAoJ/ivXxblfB+iI9nswsnbMZbW7INiiZ+KU" crossorigin="anonymous"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        if (typeof Chart === "undefined") {
-            console.error("Chart.js failed to load!");
-            return;
-        }
-
-        const { registerables } = Chart;
-        Chart.register(...registerables);
-
-        const liveData = [
-        { "id": 1, "tds": 850, "airTemp": 23.5, "airPressure": 101.2, "humidity": 68, "waterTemp": 21.4 },
-        { "id": 2, "tds": 870, "airTemp": 23.8, "airPressure": 101.1, "humidity": 67, "waterTemp": 21.6 },
-        { "id": 3, "tds": 890, "airTemp": 24.0, "airPressure": 101.0, "humidity": 66, "waterTemp": 21.8 },
-        { "id": 4, "tds": 910, "airTemp": 24.3, "airPressure": 100.9, "humidity": 65, "waterTemp": 22.0 },
-        { "id": 5, "tds": 925, "airTemp": 24.6, "airPressure": 100.8, "humidity": 64, "waterTemp": 22.2 }
-        ];
-
-        const historicalMonths = ['May', 'June', 'July', 'Aug', 'Sept', 'Oct'];
-        const ecLevels = [1.2, 1.4, 1.6, 1.5, 1.7, 1.8];
-        const yieldGrowth = [85, 92, 95, 96, 98, 97];
-
-        const ids = liveData.map(item => `Point ${item.id}`);
-        const waterTempData = liveData.map(item => item.waterTemp); 
-        const tdsData = liveData.map(item => item.tds);
-        const humidityData = liveData.map(item => item.humidity);
-        const airPressureData = liveData.map(item => item.airPressure);
-
-        const chartOptions = {
-            responsive: true,
-            maintainAspectRatio: false, // Allows charts to fill the container size
-            borderWidth: 2,
-            tension: 0.3,
-            scales: {
-                y: { beginAtZero: false }
-            }
-        };
-
-
-        // Chart 1: Water Temp
-        new Chart(document.getElementById('chartWaterTemp'), {
-            type: 'line',
-            data: {
-                labels: ids,
-                datasets: [{
-                    label: 'Water Temp (°C)',
-                    data: waterTempData,
-                    borderColor: '#33C3F0',
-                    backgroundColor: 'rgba(51,195,240,0.2)',
-                }]
-            },
-            options: chartOptions
-        });
-
-
-        // Chart 2: Air Pressure
-        new Chart(document.getElementById('chartAirPressure'), {
-            type: 'line',
-            data: {
-                labels: ids,
-                datasets: [{
-                    label: 'Air Pressure (kPa)',
-                    data: airPressureData,
-                    borderColor: '#F59E0B',
-                    backgroundColor: 'rgba(245,158,11,0.2)',
-                }]
-            },
-            options: chartOptions
-        });
-    
-        // Chart 3: Humidity
-        new Chart(document.getElementById('chartHumidity'), {
-            type: 'line',
-            data: {
-                labels: ids,
-                datasets: [{
-                    label: 'Humidity (%)',
-                    data: humidityData,
-                    borderColor: '#10B981',
-                    backgroundColor: 'rgba(16,185,129,0.2)',
-                }]
-            },
-            options: chartOptions
-        });
-
-
-        // Chart 4: Total Dissolved Particles (TDS)
-        new Chart(document.getElementById('chartTotalDissolvedParticles'), {
-            type: 'line',
-            data: {
-                labels: ids,
-                datasets: [{
-                    label: 'TDS (ppm)',
-                    data: tdsData,
-                    borderColor: '#8B5CF6',
-                    backgroundColor: 'rgba(139,92,246,0.2)',
-                }]
-            },
-            options: chartOptions
-        });
-
-
-        // --- 4. DEFINE HISTORICAL CHARTS (2) ---
-    
-        // Chart 5: Historical EC (Nutrient Levels)
-        new Chart(document.getElementById('chartHistoricalEC'), {
-            type: 'bar',
-            data: {
-                labels: historicalMonths,
-                datasets: [{
-                    label: 'EC Level (mS/cm)',
-                    data: ecLevels,
-                    backgroundColor: '#DC2626', // Red
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        title: {
-                            display: true,
-                            text: 'EC (mS/cm)'
-                        }
-                    }
-                }
-            }
-        });
-
-
-        // Chart 6: Yield Growth
-        new Chart(document.getElementById('chartYield'), {
-            type: 'line',
-            data: {
-                labels: historicalMonths,
-                datasets: [{
-                    label: 'Yield (%)',
-                    data: yieldGrowth,
-                    borderColor: '#14B8A6', // Cyan
-                    backgroundColor: 'rgba(20, 184, 166, 0.2)',
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        min: 80, // Start higher to emphasize growth
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Yield Percentage'
-                        }
-                    }
-                }
-            }
-        });
-
-        // --- Generate Recommendation Example ---
-        const recBox = document.getElementById("recommendation-box");
-        const latest = liveData[liveData.length - 1];
-        let recommendations = [];
-
-        if (latest.waterTemp > 22) {
-        recommendations.push("⚠️ Water temperature is high. Consider cooling nutrient solution.");
-        } else if (latest.waterTemp < 20) {
-        recommendations.push("🌡️ Water temperature is low. Consider increasing ambient warmth.");
-        }
-
-        if (latest.humidity < 60) {
-        recommendations.push("💧 Humidity is low. Increase misting or reduce fan speed.");
-        }
-
-        if (latest.tds > 900) {
-        recommendations.push("🧪 Nutrient concentration slightly high. Dilute with fresh water.");
-        }
-
-        if (recommendations.length === 0) {
-        recommendations.push("✅ All systems optimal — great work!");
-        }
-
-        recBox.innerHTML = recommendations.map(r => `<p>${r}</p>`).join("");
-    });
-  </script>
-  
+<svelte:head>
   <script src="/chat.js"></script>
-  <script>
-  const chatButton = document.querySelector("#chatbot button");
-    chatButton.addEventListener("click", async () => {
-        const userMessage = prompt("Ask TerraBot a question about your plants:");
-        if (!userMessage) return;
-        chatButton.disabled = true;
-        chatButton.textContent = "💬 Thinking...";
+</svelte:head>
 
-        try {
-        const reply = await sendMessage(userMessage);
-        alert("TerraBot: " + reply);
-        } catch (err) {
-        alert("Error: Could not reach AI.");
-        console.error(err);
-        }
-
-        chatButton.disabled = false;
-        chatButton.textContent = "💬 Chat with TerraBot";
-    });
-  </script>
-
-</body>
-</html>
+<style>
+  @import "https://cdn.jsdelivr.net/npm/@skeletonlabs/skeleton/themes/hamlindigo.css";
+  @import "https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css";
+</style>
