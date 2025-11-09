@@ -21,6 +21,11 @@
       width: 80px;
       height: auto;
     }
+
+    canvas {
+        width: 100% !important;
+    height: 100% !important;
+    }
   </style>
 </head>
 
@@ -84,6 +89,19 @@
   </div>
   </main>
 
+  <section id="recommendations" class="bg-surface-100 py-16">
+    <div class="container mx-auto text-center">
+        <h2 class="text-3xl font-semibold text-primary-700 mb-6">Smart Recommendations</h2>
+        <p class="max-w-2xl mx-auto text-lg mb-8">
+        Based on current live readings, TerraFlo suggests the following actions to optimize growth:
+        </p>
+        
+        <div id="recommendation-box" class="bg-surface-200 text-lg p-6 rounded-xl shadow-lg max-w-3xl mx-auto">
+        Loading recommendations...
+        </div>
+    </div>
+  </section>
+
   <!-- Historical Data -->
   <section id="historical" class="bg-surface-50 py-12">
     <div class="container mx-auto text-center mb-10">
@@ -111,8 +129,15 @@
     © 2025 TerraFlo Analytics — Empowering Smart Farming Affordably
   </footer>
 
+  <!-- Placeholder for AI Chatbot -->
+  <div id="chatbot" class="fixed bottom-6 right-6">
+    <button class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-4 rounded-full shadow-lg">
+      💬 Chat with TerraBot
+    </button>
+  </div>
+
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-o6InL+o0sygQvFzPrppvjhZRTV7rqAoJ/ivXxblfB+iI9nswsnbMZbW7INiiZ+KU" crossorigin="anonymous"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
         if (typeof Chart === "undefined") {
@@ -272,13 +297,55 @@
                 }
             }
         });
-    </script>
- 
-  <!-- Placeholder for AI Chatbot -->
-  <div id="chatbot" class="fixed bottom-6 right-6">
-    <button class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-3 px-4 rounded-full shadow-lg">
-      💬 Chat with TerraBot
-    </button>
-  </div>
+
+        // --- Generate Recommendation Example ---
+        const recBox = document.getElementById("recommendation-box");
+        const latest = liveData[liveData.length - 1];
+        let recommendations = [];
+
+        if (latest.waterTemp > 22) {
+        recommendations.push("⚠️ Water temperature is high. Consider cooling nutrient solution.");
+        } else if (latest.waterTemp < 20) {
+        recommendations.push("🌡️ Water temperature is low. Consider increasing ambient warmth.");
+        }
+
+        if (latest.humidity < 60) {
+        recommendations.push("💧 Humidity is low. Increase misting or reduce fan speed.");
+        }
+
+        if (latest.tds > 900) {
+        recommendations.push("🧪 Nutrient concentration slightly high. Dilute with fresh water.");
+        }
+
+        if (recommendations.length === 0) {
+        recommendations.push("✅ All systems optimal — great work!");
+        }
+
+        recBox.innerHTML = recommendations.map(r => `<p>${r}</p>`).join("");
+    });
+  </script>
+  
+  <script src="/chat.js"></script>
+  <script>
+  const chatButton = document.querySelector("#chatbot button");
+    chatButton.addEventListener("click", async () => {
+        const userMessage = prompt("Ask TerraBot a question about your plants:");
+        if (!userMessage) return;
+        chatButton.disabled = true;
+        chatButton.textContent = "💬 Thinking...";
+
+        try {
+        const reply = await sendMessage(userMessage);
+        alert("TerraBot: " + reply);
+        } catch (err) {
+        alert("Error: Could not reach AI.");
+        console.error(err);
+        }
+
+        chatButton.disabled = false;
+        chatButton.textContent = "💬 Chat with TerraBot";
+    });
+  </script>
+
 </body>
 </html>
