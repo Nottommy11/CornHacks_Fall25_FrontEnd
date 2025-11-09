@@ -45,7 +45,6 @@
   async function sendMessage() {
     if (!chatInput.trim()) return;
 
-    // Add user message
     messages = [...messages, { role: "user", text: chatInput }];
     const userMessage = chatInput;
     chatInput = "";
@@ -65,20 +64,50 @@
     messages = [...messages, { role: "bot", text: reply }];
   }
 
-  // --- Charts (you can replace with your real data later) ---
+  // --- Charts ---
   onMount(() => {
     generateRecommendations();
 
-    const ctx = document.getElementById('chartWaterTemp');
-    new Chart(ctx, {
+    // Water Temperature Chart
+    new Chart(document.getElementById('chartWaterTemp'), {
       type: 'line',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
         datasets: [
-          {
-            label: 'Water Temp (°C)',
-            data: [21, 22, 23, 22, 21],
-          },
+          { label: 'Water Temp (°C)', data: [21, 22, 23, 22, 21] },
+        ],
+      },
+    });
+
+    // Air Pressure Chart
+    new Chart(document.getElementById('chartAirPressure'), {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [
+          { label: 'Air Pressure (atm)', data: [1.02, 1.01, 1.03, 1.00, 1.01] },
+        ],
+      },
+    });
+
+    // Humidity Chart
+    new Chart(document.getElementById('chartHumidity'), {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [
+          { label: 'Humidity (%)', data: [68, 64, 61, 58, 60] },
+        ],
+      },
+    });
+
+    // TDS Chart
+    new Chart(document.getElementById('chartTDS'), {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [
+          { label: 'TDS (ppm)', data: [850, 880, 900, 910, 880] },
         ],
       },
     });
@@ -90,7 +119,10 @@
   <!-- Header -->
   <header class="bg-primary-500 text-primary-contrast-500 p-6 shadow-md">
     <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold">TerraFlo Analytics</h1>
+      <div class="flex items-center space-x-3">
+        <img src="/tfaLogo.png" alt="TerraFlo Logo" class="h-10 w-10 rounded-full shadow-md" />
+        <h1 class="text-2xl font-bold">TerraFlo Analytics</h1>
+      </div>
       <nav class="space-x-4 text-lg">
         <a href="#about" class="hover:underline">About</a>
         <a href="#live" class="hover:underline">Live</a>
@@ -100,6 +132,7 @@
     </div>
   </header>
 
+  <!-- About Section -->
   <section id="about" class="bg-surface-50 py-20 text-center">
     <div class="container mx-auto">
       <h2 class="text-4xl font-bold mb-4 text-primary-700">
@@ -116,6 +149,7 @@
   <main id="live" class="container mx-auto py-12 flex-1">
     <h2 class="text-3xl font-semibold text-center mb-10">Live Monitoring Dashboard</h2>
 
+    <!-- 2x2 Grid of Charts -->
     <div class="grid md:grid-cols-2 gap-8">
       <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
         <h3 class="text-xl font-semibold mb-4 text-primary-700">Water Temp (°C)</h3>
@@ -125,6 +159,16 @@
       <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
         <h3 class="text-xl font-semibold mb-4 text-primary-700">Air Pressure (atm)</h3>
         <canvas id="chartAirPressure"></canvas>
+      </div>
+
+      <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
+        <h3 class="text-xl font-semibold mb-4 text-primary-700">Humidity (%)</h3>
+        <canvas id="chartHumidity"></canvas>
+      </div>
+
+      <div class="bg-surface-200 p-6 rounded-xl shadow-lg h-96">
+        <h3 class="text-xl font-semibold mb-4 text-primary-700">TDS (ppm)</h3>
+        <canvas id="chartTDS"></canvas>
       </div>
     </div>
   </main>
