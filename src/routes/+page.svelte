@@ -489,7 +489,7 @@
 				Affordable Intelligence for Sustainable Growth
 			</h2>
 			<p class="mx-auto max-w-2xl text-lg leading-relaxed">
-				TerraFlo Analytics gives hydroponic and soil-based farmers real-time insights — from
+				TerraFlo Analytics gives hydroponic farmers real-time insights — from
 				nutrient stability to climate balance — all through accessible, low-cost data visualization.
 			</p>
 		</section>
