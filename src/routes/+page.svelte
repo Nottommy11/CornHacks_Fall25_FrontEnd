@@ -5,7 +5,37 @@
 	export let data;
 	const { nodeData } = data;
 
-	console.log(nodeData);
+	function prepareChartData(nodeData, metricKey, labelLimit = 30) {
+		const filtered = nodeData
+			.filter((d) => d.metricType === metricKey)
+			.map((d) => ({
+				time: new Date(d.timeStamp),
+				value: parseFloat(d.value)
+			}))
+			.sort((a, b) => a.time - b.time);
+
+		if (filtered.length === 0) return { labels: [], values: [] };
+
+		// Downsample to avoid clutter
+		const step = Math.ceil(filtered.length / labelLimit);
+		const reduced = filtered.filter((_, i) => i % step === 0);
+
+		const labels = reduced.map((d) =>
+			d.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+		);
+		const values = reduced.map((d) => d.value);
+
+		return { labels, values };
+	}
+
+	const chartData = {
+		water_temp: prepareChartData(nodeData, 'water_temp'),
+		air_temp: prepareChartData(nodeData, 'air_temp'),
+		humidity: prepareChartData(nodeData, 'humidity'),
+		pressure: prepareChartData(nodeData, 'pressure'),
+		tds: prepareChartData(nodeData, 'tds'),
+		water_level: prepareChartData(nodeData, 'water_level')
+	};
 
 	let userInput = '';
 	let response = '';
@@ -150,66 +180,92 @@
 		window.addEventListener('scroll', handleScroll);
 		handleScroll();
 
-		// --- Live Dashboard Charts ---
-		new Chart(document.getElementById('chartWaterTemp'), {
-			type: 'line',
-			data: {
-				labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-				datasets: [
-					{
-						label: 'Water Temp (°C)',
-						data: [21, 22, 22.5, 22.2, 21.8],
-						borderColor: '#4CAF50',
-						fill: false,
-						tension: 0.3
+		function makeChart(id, label, data, color, yOpts) {
+			new Chart(document.getElementById(id), {
+				type: 'line',
+				data: {
+					labels: data.labels,
+					datasets: [
+						{
+							label,
+							data: data.values,
+							borderColor: color,
+							fill: false,
+							tension: 0.3
+						}
+					]
+				},
+				options: {
+					scales: {
+						y: yOpts,
+						x: { ticks: { maxTicksLimit: 10 } }
 					}
-				]
-			}
+				}
+			});
+		}
+
+		// --- Live Dashboard Charts ---
+		// Water Temperature (°C)
+		makeChart('chartWaterTemp', 'Water Temp (°C)', chartData.water_temp, '#4CAF50', {
+			suggestedMin: 15,
+			suggestedMax: 30,
+			ticks: { stepSize: 2 }
 		});
 
-		new Chart(document.getElementById('chartAirPressure'), {
+		// Air Temperature (°C)
+		makeChart('chartAirTemp', 'Air Temp (°C)', chartData.air_temp, '#2196F3', {
+			suggestedMin: 15,
+			suggestedMax: 35,
+			ticks: { stepSize: 2 }
+		});
+
+		// Humidity (%)
+		makeChart('chartHumidity', 'Humidity (%)', chartData.humidity, '#FF9800', {
+			suggestedMin: 30,
+			suggestedMax: 90,
+			ticks: { stepSize: 10 }
+		});
+
+		// Pressure (hPa)
+		makeChart('chartAirPressure', 'Pressure (atm)', chartData.pressure, '#9C27B0', {
+			suggestedMin: 995,
+			suggestedMax: 1030,
+			ticks: { stepSize: 5 }
+		});
+
+		// TDS (ppm)
+		makeChart('chartTDS', 'TDS (ppm)', chartData.tds, '#E91E63', {
+			suggestedMin: 0,
+			suggestedMax: 1000,
+			ticks: { stepSize: 100 }
+		});
+
+		new Chart(document.getElementById('chartWaterLevel'), {
 			type: 'bar',
 			data: {
-				labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+				labels: chartData.water_level.labels,
 				datasets: [
 					{
-						label: 'Air Pressure (atm)',
-						data: [1.02, 1.01, 1.03, 1.0, 1.01],
-						backgroundColor: '#90CAF9'
+						label: 'Water Level',
+						data: chartData.water_level.values.map((v) =>
+							v < 3 ? 0 : v < 4 ? 1 : v < 5 ? 2 : 3
+						),
+						backgroundColor: '#795548'
 					}
 				]
-			}
-		});
-
-		new Chart(document.getElementById('chartHumidity'), {
-			type: 'line',
-			data: {
-				labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-				datasets: [
-					{
-						label: 'Humidity (%)',
-						data: [67, 65, 63, 62, 64],
-						borderColor: '#FF9800',
-						fill: false,
-						tension: 0.3
-					}
-				]
-			}
-		});
-
-		new Chart(document.getElementById('chartTDS'), {
-			type: 'line',
-			data: {
-				labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-				datasets: [
-					{
-						label: 'TDS (ppm)',
-						data: [850, 870, 880, 890, 865],
-						borderColor: '#9C27B0',
-						fill: false,
-						tension: 0.3
-					}
-				]
+			},
+			options: {
+				scales: {
+					y: {
+						ticks: {
+							stepSize: 1,
+							callback: (value) => ['Fill Water', 'Low', 'Medium', 'High'][value] || value
+						},
+						suggestedMin: 0,
+						suggestedMax: 3
+					},
+					x: { ticks: { maxTicksLimit: 10 } }
+				}
 			}
 		});
 
@@ -310,6 +366,10 @@
 				<canvas id="chartWaterTemp"></canvas>
 			</div>
 			<div class="h-96 rounded-xl bg-surface-200 p-6 shadow-lg">
+				<h3 class="mb-4 text-xl font-semibold text-primary-700">Air Temp (°C)</h3>
+				<canvas id="chartAirTemp"></canvas>
+			</div>
+			<div class="h-96 rounded-xl bg-surface-200 p-6 shadow-lg">
 				<h3 class="mb-4 text-xl font-semibold text-primary-700">Air Pressure (atm)</h3>
 				<canvas id="chartAirPressure"></canvas>
 			</div>
@@ -320,6 +380,10 @@
 			<div class="h-96 rounded-xl bg-surface-200 p-6 shadow-lg">
 				<h3 class="mb-4 text-xl font-semibold text-primary-700">TDS (ppm)</h3>
 				<canvas id="chartTDS"></canvas>
+			</div>
+			<div class="h-96 rounded-xl bg-surface-200 p-6 shadow-lg">
+				<h3 class="mb-4 text-xl font-semibold text-primary-700">Water Level</h3>
+				<canvas id="chartWaterLevel"></canvas>
 			</div>
 		</div>
 	</main>
