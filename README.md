@@ -1,38 +1,55 @@
-# sv
+# TerraFlo Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+**TerraFlo** is a data-driven hydroponic farming dashboard built with **SvelteKit**, **Tailwind CSS**, and **Chart.js**.  
+It visualizes environmental and nutrient data such as water temperature, humidity, and total dissolved solids (TDS), and provides intelligent recommendations to improve plant growth and system efficiency.
 
-## Creating a project
+---
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Overview
 
-```sh
-# create a new project in the current directory
-npx sv create
+TerraFlo’s frontend serves as an interactive control panel for growers to monitor and optimize hydroponic environments.  
+Users can view real-time charts, receive system health insights, and manage user access through a simple local authentication system.
 
-# create a new project in my-app
-npx sv create my-app
-```
+---
 
-## Developing
+## Tech Stack
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+| Technology | Description |
+|-------------|--------------|
+| **SvelteKit** | Core frontend framework for building fast, reactive UIs |
+| **Tailwind CSS** | Utility-first CSS framework for responsive design |
+| **Chart.js** | Data visualization library for dynamic chart rendering |
+| **Node.js (Local API)** | Provides data endpoints and user authentication simulation |
+| **JSON Storage** | Stores user and sensor data for demo purposes |
 
-```sh
+---
+
+## Features
+
+- Real-time visualization of hydroponic metrics:
+  - Total Dissolved Solids (TDS)
+  - Air Temperature
+  - Air Pressure
+  - Humidity
+  - Water Temperature
+- AI-style recommendations based on environmental data
+- User login and registration using local JSON files
+- Responsive, accessible design with Tailwind
+- Smooth chart animations and clean dashboard interface
+
+---
+
+## Installation and Setup
+
+To run the frontend locally:
+
+```bash
+# Clone the repository
+git clone https://github.com/YourUsername/TerraFlo-Frontend.git
+cd TerraFlo-Frontend
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
