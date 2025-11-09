@@ -2,7 +2,9 @@
 	import Chart from 'chart.js/auto';
 
 	export let data;
-	const { nodes } = data;
+	const { nodeData } = data;
+
+	console.log(nodeData);
 
 	function changeData() {
 		dataToGraph = [14, 15, 13, 25, 21, 7, 15, 2, 30, 19, 20, 19, 21, 29];

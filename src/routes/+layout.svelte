@@ -2,7 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/tfaLogo.png';
 
-	// import Header from './Header.svelte';
+	import Header from './Header.svelte';
 	// import Footer from './Footer.svelte';
 
 	let { children } = $props();
@@ -12,7 +12,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<!-- <Header /> -->
+<Header />
 
 {@render children()}
 
