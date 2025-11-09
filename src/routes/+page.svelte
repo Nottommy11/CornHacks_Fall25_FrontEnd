@@ -58,26 +58,66 @@
     { role: 'bot', text: "Hi! I'm TerraBot 🌿. Ask me about your hydroponic setup!" }
   ];
 
+  // --- SMART, DATA-BASED RECOMMENDATIONS ---
   function generateRecommendations() {
     const latest = liveData[liveData.length - 1];
     recommendations = [];
 
-    if (latest.waterTemp > 26) recommendations.push("⚠️ Water temperature is too high (risk of root rot). Cool your nutrient reservoir.");
-    else if (latest.waterTemp > 24) recommendations.push("🌡️ Water temperature slightly high. Ideal range is 18–24 °C.");
-    else if (latest.waterTemp < 18) recommendations.push("❄️ Water too cold — roots slow nutrient uptake. Add a heater or insulate the tank.");
+    // Reference values (general hydroponic leafy greens)
+    const IDEAL_WATER_TEMP = [18, 24]; // °C
+    const IDEAL_AIR_TEMP = [20, 26]; // °C
+    const IDEAL_HUMIDITY = [55, 70]; // %
+    const IDEAL_TDS = [800, 1200]; // ppm
+    const IDEAL_AIR_PRESSURE = [0.98, 1.05]; // atm typical stable range
 
-    if (latest.airTemp > 28) recommendations.push("🔥 Air temperature high. Increase ventilation or shade plants.");
-    else if (latest.airTemp < 20) recommendations.push("🌬️ Air temperature low. Add warmth to maintain 20–26 °C range.");
+    // --- WATER TEMPERATURE ---
+    if (latest.waterTemp > 26)
+      recommendations.push("⚠️ Water temperature is too high (>26 °C). Roots may suffer from oxygen deprivation and nutrient uptake issues. Consider using a water chiller or insulating the reservoir.");
+    else if (latest.waterTemp > IDEAL_WATER_TEMP[1])
+      recommendations.push("🌡️ Water temperature slightly high (24–26 °C). Optimal growth occurs between 18–24 °C — slightly cooler water keeps roots oxygenated.");
+    else if (latest.waterTemp < IDEAL_WATER_TEMP[0])
+      recommendations.push("❄️ Water too cold (<18 °C). Root metabolism slows and nutrient absorption drops. Use a submersible heater or insulate pipes.");
 
-    if (latest.humidity < 55) recommendations.push("💧 Humidity is too low — increase misting or lower fan speed.");
-    else if (latest.humidity > 70) recommendations.push("💨 Humidity high — increase airflow to prevent mold.");
+    // --- AIR TEMPERATURE ---
+    if (latest.airTemp > 28)
+      recommendations.push("🔥 Air temperature high (>28 °C). Heat stress may stunt growth or cause tip burn in lettuce. Increase ventilation or use reflective shading.");
+    else if (latest.airTemp < 18)
+      recommendations.push("🥶 Air temperature below optimal (<18 °C). Growth slows; consider mild heating or enclosing the grow area to retain warmth.");
+    else if (latest.airTemp > IDEAL_AIR_TEMP[1])
+      recommendations.push("⚠️ Air temperature slightly high (26–28 °C). Maintain between 20–26 °C for steady transpiration and nutrient movement.");
 
-    if (latest.tds > 1200) recommendations.push("🧪 TDS high — dilute nutrient solution with fresh water.");
-    else if (latest.tds < 800) recommendations.push("🌿 TDS low — add nutrients to reach 800–1200 ppm.");
+    // --- HUMIDITY ---
+    if (latest.humidity < IDEAL_HUMIDITY[0])
+      recommendations.push("💧 Humidity low (<55 %). Plants may transpire too quickly, leading to nutrient imbalance. Increase misting, or slow fan speed.");
+    else if (latest.humidity > IDEAL_HUMIDITY[1])
+      recommendations.push("💨 Humidity high (>70 %). Mold, mildew, or calcium deficiency can occur. Improve airflow or reduce mist cycles.");
 
-    if (latest.airPressure < 0.98) recommendations.push("⛅ Air pressure slightly low — possible weather change, monitor system response.");
+    // --- TDS / NUTRIENT STRENGTH ---
+    if (latest.tds > 1500)
+      recommendations.push("🧪 TDS too high (>1500 ppm). Nutrient burn risk! Dilute with fresh water to bring levels down to ~1000 ppm.");
+    else if (latest.tds > IDEAL_TDS[1])
+      recommendations.push("⚠️ TDS slightly above ideal (1200–1500 ppm). Ideal range for leafy greens is 800–1200 ppm. Add water if tips show burn.");
+    else if (latest.tds < 600)
+      recommendations.push("🌿 TDS too low (<600 ppm). Plants may be nutrient-deficient — add nutrient concentrate to reach 800–1200 ppm.");
+    else if (latest.tds < IDEAL_TDS[0])
+      recommendations.push("🧩 TDS slightly below ideal (600–800 ppm). Consider mild nutrient addition for stronger vegetative growth.");
 
-    if (recommendations.length === 0) recommendations.push("✅ All systems optimal — your hydroponic setup is balanced!");
+    // --- AIR PRESSURE ---
+    if (latest.airPressure < IDEAL_AIR_PRESSURE[0])
+      recommendations.push("🌫️ Air pressure slightly low (<0.98 atm). Weather shifts or storms may alter humidity and evaporation — monitor stability.");
+    else if (latest.airPressure > IDEAL_AIR_PRESSURE[1])
+      recommendations.push("☀️ Air pressure higher than normal (>1.05 atm). Usually stable conditions, but minor stress possible if rapid changes occur.");
+
+    // --- MULTI-CONDITION INSIGHTS ---
+    if (latest.airTemp > 26 && latest.humidity > 70)
+      recommendations.push("⚠️ High heat + high humidity detected. This combo promotes fungal growth. Increase ventilation immediately.");
+    if (latest.airTemp < 20 && latest.humidity < 55)
+      recommendations.push("🌬️ Cool and dry air — expect slower photosynthesis. Slightly raise humidity or warmth for balanced VPD (Vapor Pressure Deficit).");
+    if (latest.waterTemp > 25 && latest.tds > 1200)
+      recommendations.push("🚨 High water temp + high TDS — dangerous combination! Oxygen solubility drops and nutrient burn likely. Dilute and cool water.");
+
+    if (recommendations.length === 0)
+      recommendations.push("✅ All systems within optimal hydroponic ranges — excellent environmental balance! Keep monitoring stability for consistent yields.");
   }
 
   async function sendMessage() {
