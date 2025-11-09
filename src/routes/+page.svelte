@@ -12,7 +12,7 @@
   // --- State variables ---
   let recommendations = [];
   let chatOpen = false;
-  let chatInput = ''; // ✅ must be declared as `let` for binding
+  let chatInput = '';
   let messages = [
     { role: 'bot', text: "Hi! I'm TerraBot 🌿. Ask me about your hydroponic setup!" }
   ];
@@ -105,40 +105,122 @@
     window.addEventListener('scroll', handleScroll);
     handleScroll();
 
-    // Water Temp Chart
+    // --- Live Dashboard Charts ---
     new Chart(document.getElementById('chartWaterTemp'), {
       type: 'line',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-        datasets: [{ label: 'Water Temp (°C)', data: [21, 22, 22.5, 22.2, 21.8], borderColor: '#4CAF50' }]
-      },
+        datasets: [
+          {
+            label: 'Water Temp (°C)',
+            data: [21, 22, 22.5, 22.2, 21.8],
+            borderColor: '#4CAF50',
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      }
     });
 
-    // Air Pressure Chart
     new Chart(document.getElementById('chartAirPressure'), {
       type: 'bar',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-        datasets: [{ label: 'Air Pressure (atm)', data: [1.02, 1.01, 1.03, 1.00, 1.01], backgroundColor: '#90CAF9' }]
-      },
+        datasets: [
+          {
+            label: 'Air Pressure (atm)',
+            data: [1.02, 1.01, 1.03, 1.00, 1.01],
+            backgroundColor: '#90CAF9'
+          }
+        ]
+      }
     });
 
-    // Humidity Chart
     new Chart(document.getElementById('chartHumidity'), {
       type: 'line',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-        datasets: [{ label: 'Humidity (%)', data: [67, 65, 63, 62, 64], borderColor: '#FF9800' }]
-      },
+        datasets: [
+          {
+            label: 'Humidity (%)',
+            data: [67, 65, 63, 62, 64],
+            borderColor: '#FF9800',
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      }
     });
 
-    // TDS Chart
     new Chart(document.getElementById('chartTDS'), {
       type: 'line',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-        datasets: [{ label: 'TDS (ppm)', data: [850, 870, 880, 890, 865], borderColor: '#9C27B0' }]
+        datasets: [
+          {
+            label: 'TDS (ppm)',
+            data: [850, 870, 880, 890, 865],
+            borderColor: '#9C27B0',
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      }
+    });
+
+    // --- Historical Section Charts (Added) ---
+    new Chart(document.getElementById('chartHistoricalTemp'), {
+      type: 'line',
+      data: {
+        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        datasets: [
+          {
+            label: 'Avg Water Temp (°C)',
+            data: [19.8, 21.2, 23.1, 24.6, 22.9, 20.4],
+            borderColor: '#4CAF50',
+            backgroundColor: 'rgba(76,175,80,0.2)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
       },
+      options: {
+        plugins: { legend: { display: true } },
+        scales: {
+          y: {
+            suggestedMin: 18,
+            suggestedMax: 26,
+            title: { display: true, text: '°C' }
+          }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chartHistoricalTDS'), {
+      type: 'line',
+      data: {
+        labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+        datasets: [
+          {
+            label: 'Avg TDS (ppm)',
+            data: [820, 870, 930, 1100, 960, 880],
+            borderColor: '#9C27B0',
+            backgroundColor: 'rgba(156,39,176,0.2)',
+            fill: true,
+            tension: 0.4
+          }
+        ]
+      },
+      options: {
+        plugins: { legend: { display: true } },
+        scales: {
+          y: {
+            suggestedMin: 700,
+            suggestedMax: 1200,
+            title: { display: true, text: 'ppm' }
+          }
+        }
+      }
     });
   });
 
@@ -260,17 +342,16 @@
   @import "https://cdn.jsdelivr.net/npm/@skeletonlabs/skeleton/themes/hamlindigo.css";
   @import "https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css";
 
-  /* Remove unwanted Tailwind directives */
   :global(html)::after {
     content: '';
   }
 
-  /* Fade-in Scroll Animation */
   .fade-on-scroll {
     opacity: 0;
     transform: translateY(40px);
     transition: all 0.8s ease-out;
   }
+
   .fade-on-scroll.show {
     opacity: 1;
     transform: translateY(0);
