@@ -17,12 +17,32 @@
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/kit": "^2.47.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
-		"@tailwindcss/vite": "^4.1.14",
+		"@tailwindcss/vite": "^4.1.17",
 		"prettier": "^3.6.2",
 		"prettier-plugin-svelte": "^3.4.0",
 		"prettier-plugin-tailwindcss": "^0.7.1",
 		"svelte": "^5.41.0",
-		"tailwindcss": "^4.1.14",
+		"tailwindcss": "^4.1.17",
 		"vite": "^7.1.10"
-	}
+	},
+	"dependencies": {
+		"@google/generative-ai": "^0.24.1",
+		"chart.js": "^4.5.1",
+		"cors": "^2.8.5",
+		"dotenv": "^17.2.3",
+		"express": "^5.1.0"
+	},
+	"description": "Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).",
+	"main": "svelte.config.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Nottommy11/CornHacks_Fall25_FrontEnd.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Nottommy11/CornHacks_Fall25_FrontEnd/issues"
+	},
+	"homepage": "https://github.com/Nottommy11/CornHacks_Fall25_FrontEnd#readme"
 }
